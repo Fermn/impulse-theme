@@ -1,0 +1,407 @@
+{%- if section.settings.divider -%}<div class="section--divider">{%- endif -%}
+
+{%- liquid
+  assign image_width = section.settings.image_width
+  assign overlap_images = true
+  if section.settings.image == blank or section.settings.image2 == blank
+    assign overlap_images = false
+  endif
+
+  if section.settings.image == blank and section.settings.image2 == blank
+    assign overlap_images = true
+    assign placeholder_images = true
+  endif
+-%}
+
+{% style %}
+  {% if section.settings.top_padding == false %}
+    .index-section { margin-top: 0 !important; }
+  {% endif %}
+  {% if section.settings.bottom_padding == false %}
+    .index-section { margin-bottom: 0 !important; }
+  {% endif %}
+{% endstyle %}
+
+<div class="index-section">
+
+  <div class="page-width feature-row-wrapper feature-row--{{ image_width }}">
+    {%- capture image_layout -%}
+      <div class="feature-row__item feature-row__images{% if overlap_images %} feature-row__item--overlap-images{% endif %} {% if placeholder_images %}feature-row__item--placeholder-images{% endif %}" data-aos>
+          {%- if section.settings.image != blank -%}
+            <div class="feature-row__first-image">
+              {%- if section.settings.button_label != blank and section.settings.button_link != blank -%}<a href="{{ section.settings.button_link }}">{%- endif -%}
+                <div class="image-wrap {% if section.settings.image_mask != 'none' %}svg-mask svg-mask--{{ section.settings.image_mask }}{% endif %}" style="height: 0; padding-bottom: {{ 100 | divided_by: section.settings.image.aspect_ratio }}%;">
+                  {%- liquid
+                    if section.settings.image2 == blank
+                      assign sizeVariable = section.settings.image_width | append: 'vw'
+                      assign fallback = '100vw'
+                    else
+                      assign sizeVariable = 'calc(0.4 * 50vw)'
+                      assign fallback = '40vw'
+                    endif
+
+                    assign imageWidth = section.settings.image_width | times: 1
+                    if imageWidth >= 50
+                      assign loading = section.settings.lazyload_images
+                    else
+                      assign loading = true
+                    endif
+                  -%}
+                  {%- render 'image-element',
+                    img: section.settings.image,
+                    widths: '180, 360, 540, 750, 900, 1080',
+                    loading: loading,
+                    sizeVariable: sizeVariable,
+                    fallback: fallback,
+                    classes: 'feature-row__image',
+                  -%}
+                </div>
+              {%- if section.settings.button_label != blank and section.settings.button_link != blank -%}</a>{%- endif -%}
+            </div>
+          {%- endif -%}
+          {%- if section.settings.image2 != blank -%}
+            <div class="feature-row__second-image">
+              {%- if section.settings.button_label != blank and section.settings.button_link != blank -%}<a href="{{ section.settings.button_link }}">{%- endif -%}
+                <div class="image-wrap {% if section.settings.image2_mask != 'none' %}svg-mask svg-mask--{{ section.settings.image2_mask }}{% endif %}" style="height: 0; padding-bottom: {{ 100 | divided_by: section.settings.image2.aspect_ratio }}%;">
+                  {%- liquid
+                    if section.settings.image == blank
+                      assign sizeVariable = section.settings.image_width | append: 'vw'
+                      assign fallback = '100vw'
+                    else
+                      assign sizeVariable = 'calc(0.6 * 50vw)'
+                      assign fallback = '60vw'
+                    endif
+                  -%}
+                  {%- render 'image-element',
+                    img: section.settings.image2,
+                    widths: '180, 360, 540, 750, 900, 1080',
+                    sizeVariable: sizeVariable,
+                    fallback: fallback,
+                    classes: 'feature-row__image',
+                  -%}
+                </div>
+              {%- if section.settings.button_label != blank and section.settings.button_link != blank -%}</a>{%- endif -%}
+            </div>
+          {%- endif -%}
+          {%- if section.settings.image == blank and section.settings.image2 == blank -%}
+            <div class="placeholder-image-wrap">
+              <div class="image-wrap">
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+              </div>
+            </div>
+            <div class="placeholder-image-wrap">
+              <div class="image-wrap">
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+              </div>
+            </div>
+          {%- endif -%}
+      </div>
+    {%- endcapture -%}
+
+    <div class="feature-row">
+      {%- if section.settings.layout == 'left' -%}
+        {{ image_layout }}
+      {%- endif -%}
+
+      <div class="feature-row__item feature-row__text feature-row__text--{{ section.settings.layout }} text-{{ section.settings.align_text }}" data-aos>
+        {%- if section.settings.subtitle != blank -%}
+          <div class="subheading appear-delay{% cycle '','-1','-2','-3','-4' %}">{{ section.settings.subtitle }}</div>
+        {%- endif -%}
+        {%- if section.settings.title != blank -%}
+          <h2 class="h1 appear-delay{% cycle '','-1','-2','-3','-4' %}">{{ section.settings.title | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.text != blank -%}
+          <div class="rte appear-delay{% cycle '','-1','-2','-3','-4' %}">{{ section.settings.text }}</div>
+        {%- endif -%}
+        {%- if section.settings.button_label != blank -%}
+          <div class="appear-delay{% cycle '','-1','-2','-3','-4' %}">
+            <a href="{{ section.settings.button_link }}" class="btn{% if section.settings.button_style == 'secondary' %} btn--tertiary{% endif %}">
+              {{ section.settings.button_label }}
+            </a>
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- if section.settings.layout == 'right' -%}
+        {{ image_layout }}
+      {%- endif -%}
+    </div>
+  </div>
+
+</div>
+
+{%- if section.settings.divider -%}</div>{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.text-and-image.name",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.text-and-image.settings.image.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.text-and-image.settings.image.label"
+    },
+    {
+      "type": "select",
+      "id": "image_mask",
+      "label": "t:common.image_mask.label",
+      "default": "none",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:common.image_mask.options.none.label"
+        },
+        {
+          "value": "portrait",
+          "label": "t:common.image_mask.options.portrait.label"
+        },
+        {
+          "value": "landscape",
+          "label": "t:common.image_mask.options.landscape.label"
+        },
+        {
+          "value": "square",
+          "label": "t:common.image_mask.options.square.label"
+        },
+        {
+          "value": "rounded",
+          "label": "t:common.image_mask.options.rounded.label"
+        },
+        {
+          "value": "rounded-wave",
+          "label": "t:common.image_mask.options.rounded-wave.label"
+        },
+        {
+          "value": "rounded-top",
+          "label": "t:common.image_mask.options.rounded-top.label"
+        },
+        {
+          "value": "star",
+          "label": "t:common.image_mask.options.star.label"
+        },
+        {
+          "value": "splat-1",
+          "label": "t:common.image_mask.options.splat-1.label"
+        },
+        {
+          "value": "splat-2",
+          "label": "t:common.image_mask.options.splat-2.label"
+        },
+        {
+          "value": "splat-3",
+          "label": "t:common.image_mask.options.splat-3.label"
+        },
+        {
+          "value": "splat-4",
+          "label": "t:common.image_mask.options.splat-4.label"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.text-and-image.settings.image2.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "image2",
+      "label": "t:sections.text-and-image.settings.image2.label"
+    },
+    {
+      "type": "select",
+      "id": "image2_mask",
+      "label": "t:common.image_mask.label",
+      "default": "none",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:common.image_mask.options.none.label"
+        },
+        {
+          "value": "portrait",
+          "label": "t:common.image_mask.options.portrait.label"
+        },
+        {
+          "value": "landscape",
+          "label": "t:common.image_mask.options.landscape.label"
+        },
+        {
+          "value": "square",
+          "label": "t:common.image_mask.options.square.label"
+        },
+        {
+          "value": "rounded",
+          "label": "t:common.image_mask.options.rounded.label"
+        },
+        {
+          "value": "rounded-wave",
+          "label": "t:common.image_mask.options.rounded-wave.label"
+        },
+        {
+          "value": "rounded-top",
+          "label": "t:common.image_mask.options.rounded-top.label"
+        },
+        {
+          "value": "star",
+          "label": "t:common.image_mask.options.star.label"
+        },
+        {
+          "value": "splat-1",
+          "label": "t:common.image_mask.options.splat-1.label"
+        },
+        {
+          "value": "splat-2",
+          "label": "t:common.image_mask.options.splat-2.label"
+        },
+        {
+          "value": "splat-3",
+          "label": "t:common.image_mask.options.splat-3.label"
+        },
+        {
+          "value": "splat-4",
+          "label": "t:common.image_mask.options.splat-4.label"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "t:sections.text-and-image.settings.subtitle.label"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:sections.text-and-image.settings.title.label",
+      "default": "Image with text"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:sections.text-and-image.settings.text.label",
+      "default": "<p>Pair large text with an image to tell a story, explain a detail about your product, or describe a new promotion.</p>"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:sections.text-and-image.settings.button_label.label"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "t:sections.text-and-image.settings.button_link.label"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.text-and-image.settings.button_style.label",
+      "default": "primary",
+      "options": [
+        {
+          "value": "primary",
+          "label": "t:sections.text-and-image.settings.button_style.options.primary.label"
+        },
+        {
+          "value": "secondary",
+          "label": "t:sections.text-and-image.settings.button_style.options.secondary.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "align_text",
+      "label": "t:sections.text-and-image.settings.align_text.label",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.text-and-image.settings.align_text.options.left.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.text-and-image.settings.align_text.options.center.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.text-and-image.settings.align_text.options.right.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_width",
+      "label": "t:common.image_size.label",
+      "default": "50",
+      "options": [
+        {
+          "value": "33",
+          "label": "t:common.image_size.options.small.label"
+        },
+        {
+          "value": "50",
+          "label": "t:common.image_size.options.medium.label"
+        },
+        {
+          "value": "66",
+          "label": "t:common.image_size.options.large.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.text-and-image.settings.layout.label",
+      "default": "right",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.text-and-image.settings.layout.options.left.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.text-and-image.settings.layout.options.right.label"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "divider",
+      "label": "t:sections.text-and-image.settings.divider.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "top_padding",
+      "label": "t:sections.text-and-image.settings.top_padding.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "bottom_padding",
+      "label": "t:sections.text-and-image.settings.bottom_padding.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "lazyload_images",
+      "label": "t:common.lazyload_images.label",
+      "info": "t:common.lazyload_images.info",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.text-and-image.presets.image_with_text.name"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["footer", "header", "custom.popups"]
+  }
+}
+{% endschema %}

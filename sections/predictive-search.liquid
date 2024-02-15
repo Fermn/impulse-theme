@@ -1,0 +1,68 @@
+{%- if predictive_search.performed -%}
+  {%- if predictive_search.resources.products.size > 0 -%}
+    <div data-type-products>
+      {%- for product in predictive_search.resources.products -%}
+        {%- render 'product-grid-item',
+          product: product,
+          per_row: 4,
+          quick_shop_enable: settings.quick_shop_enable
+        -%}
+      {%- endfor -%}
+    </div>
+  {% endif %}
+
+  {%- if predictive_search.resources.collections.size > 0 -%}
+    <div data-type-collections>
+      <p class="h6 predictive__label">{{ 'general.search.collections' | t }}</p>
+      <ul class="no-bullets">
+        {% for collection in predictive_search.resources.collections %}
+          <li>
+            <a href="{{ collection.url }}">
+              {{ collection.title }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  {%- if predictive_search.resources.pages.size > 0 -%}
+    <div data-type-pages>
+      <p class="h6 predictive__label">{{ 'general.search.pages' | t }}</p>
+      <ul class="no-bullets">
+        {%- for page in predictive_search.resources.pages -%}
+          <li>
+            <a href="{{ page.url }}">
+              {{ page.title }}
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  {% endif %}
+
+  {%- if predictive_search.resources.articles.size > 0 -%}
+    <div data-type-articles="{{ predictive_search.resources.articles.size }}">
+      <p class="h6 predictive__label">{{ 'general.search.articles' | t }}</p>
+      {%- for article in predictive_search.resources.articles -%}
+        <div class="grid__item grid-product small--one-half medium-up--one-quarter" data-aos="row-of-4">
+          <a href="{{ article.url }}" class="grid-product__link grid-product__link--inline">
+            <div class="image-wrap">
+              <div
+                class="grid__image-ratio grid__image-ratio--square">
+                {%- render 'image-element',
+                  img: article.image,
+                  widths: '360, 540, 720, 900, 1080',
+                  sizes: '80px',
+                -%}
+              </div>
+            </div>
+            <div class="grid-product__meta">
+              {{ article.title }}
+            </div>
+          </a>
+        </div>
+      {%- endfor -%}
+    </div>
+  {% endif %}
+{%- endif -%}

@@ -1,0 +1,62 @@
+{%- liquid
+  assign row_of = section.settings.recent_count
+
+  capture gridView
+    render 'products_per_row', products_per_row: row_of, style: 'fractions'
+  endcapture
+
+  # On smaller screen sizes, 39vw is used for grid items in the CSS
+  capture sizes
+    render 'sizes-explicit', sizeVariable: gridView, fallback: '39vw'
+  endcapture
+-%}
+
+<div
+  data-subsection
+  data-section-id="{{ section.id }}"
+  data-section-type="recently-viewed"
+  data-product-handle="{{ product.handle }}"
+  data-recent-count="{{ section.settings.recent_count }}"
+  data-grid-item-class="{{ gridView }}"
+  data-row-of="{{ row_of }}"
+  data-image-sizes="{{ sizes }}"
+>
+  <hr class="hr--large">
+  <div class="index-section index-section--small">
+    <div class="page-width">
+      <header class="section-header">
+        <h3 class="section-header__title">{{ 'products.general.recent_products' | t }}</h3>
+      </header>
+    </div>
+
+    <div class="page-width page-width--flush-small">
+      <div class="grid-overflow-wrapper">
+        <div id="RecentlyViewed-{{ section.id }}" class="grid grid--uniform" data-aos="overflow__animation"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.recently-viewed.name",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.recently-viewed.settings.content"
+    },
+    {
+      "type": "range",
+      "id": "recent_count",
+      "label": "t:sections.recently-viewed.settings.recent_count.label",
+      "default": 5,
+      "min": 2,
+      "max": 10,
+      "step": 1
+    }
+  ],
+  "disabled_on": {
+    "groups": ["footer", "header", "custom.popups"]
+  }
+}
+{% endschema %}

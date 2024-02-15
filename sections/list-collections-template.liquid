@@ -1,0 +1,188 @@
+{%- liquid
+  assign per_row = section.settings.grid
+  assign paginate_by = per_row | times: 7
+
+  capture gridView
+    assign per_row = per_row | times: 1
+    if section.settings.display_type == 'selected' and section.blocks.size < per_row
+      assign products_per_row = section.blocks.size
+    else
+      assign products_per_row = per_row
+    endif
+    render 'products_per_row', products_per_row: products_per_row, style: 'fractions'
+  endcapture
+-%}
+
+{%- paginate collections by paginate_by -%}
+
+<div class="page-width page-content">
+
+  {%- render 'breadcrumbs' -%}
+
+  {%- if section.settings.title_enable -%}
+    <header class="section-header">
+      <h1 class="section-header__title">{{ 'collections.general.catalog_title' | t }}</h1>
+    </header>
+  {%- endif -%}
+
+  <div class="grid grid--uniform{% unless settings.collection_grid_gutter %} grid--no-gutters{% endunless %}">
+    {%- if section.settings.display_type == 'all' -%}
+      {%- liquid
+        case section.settings.sort
+          when 'products_high' or 'products_low'
+            assign collections = collections | sort: 'all_products_count'
+          when 'date' or 'date_reversed'
+            assign collections = collections | sort: 'published_at'
+        endcase
+      -%}
+      {%- if section.settings.sort == 'products_low' or section.settings.sort == 'date' or section.settings.sort == 'alphabetical' -%}
+        {%- for collection in collections -%}
+          {%- render 'collection-grid-item',
+              collection: collection,
+              gridView: gridView,
+              sizeVariable: gridView,
+              fallback: 'variable',
+          -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- for collection in collections reversed -%}
+          {%- render 'collection-grid-item',
+              collection: collection,
+              gridView: gridView,
+              sizeVariable: gridView,
+              fallback: 'variable',
+          -%}
+        {%- endfor -%}
+      {%- endif -%}
+    {%- else -%}
+      {%- for block in section.blocks -%}
+        {%- assign collection = collections[block.settings.collection] -%}
+        {%- render 'collection-grid-item',
+          collection: collection,
+          gridView: gridView,
+          block: block,
+          sizeVariable: gridView,
+          fallback: 'variable',
+        -%}
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+
+  {%- if paginate.pages > 1 and section.settings.display_type == 'all' -%}
+    {%- render 'pagination', paginate: paginate -%}
+  {%- endif -%}
+
+</div>
+
+{%- endpaginate -%}
+
+{% schema %}
+{
+  "name": "t:sections.list-collections-template.name",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "title_enable",
+      "label": "t:sections.list-collections-template.settings.title_enable.label",
+      "default": true
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.list-collections-template.settings.content"
+    },
+    {
+      "type": "radio",
+      "id": "display_type",
+      "label": "t:sections.list-collections-template.settings.display_type.label",
+      "default": "all",
+      "options": [
+        {
+          "value": "all",
+          "label": "t:sections.list-collections-template.settings.display_type.options.all.label"
+        },
+        {
+          "value": "selected",
+          "label": "t:sections.list-collections-template.settings.display_type.options.selected.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "sort",
+      "label": "t:sections.list-collections-template.settings.sort.label",
+      "info": "t:sections.list-collections-template.settings.sort.info",
+      "default": "alphabetical",
+      "options": [
+        {
+          "value": "products_high",
+          "label": "t:sections.list-collections-template.settings.sort.options.products_high.label"
+        },
+        {
+          "value": "products_low",
+          "label": "t:sections.list-collections-template.settings.sort.options.products_low.label"
+        },
+        {
+          "value": "alphabetical",
+          "label": "t:sections.list-collections-template.settings.sort.options.alphabetical.label"
+        },
+        {
+          "value": "alphabetical_reversed",
+          "label": "t:sections.list-collections-template.settings.sort.options.alphabetical_reversed.label"
+        },
+        {
+          "value": "date",
+          "label": "t:sections.list-collections-template.settings.sort.options.date.label"
+        },
+        {
+          "value": "date_reversed",
+          "label": "t:sections.list-collections-template.settings.sort.options.date_reversed.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "grid",
+      "label": "t:sections.list-collections-template.settings.grid.label",
+      "default": "4",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "5",
+          "label": "5"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "t:sections.list-collections-template.blocks.collection.name",
+      "settings": [
+        {
+          "label": "t:sections.list-collections-template.blocks.collection.settings.collection.label",
+          "id": "collection",
+          "type": "collection"
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["footer", "header", "custom.popups"]
+  }
+}
+{% endschema %}

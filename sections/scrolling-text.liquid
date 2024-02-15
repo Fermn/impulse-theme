@@ -1,0 +1,72 @@
+{% render 'scrolling-text', section: section %}
+
+
+{% schema %}
+{
+  "name": "t:sections.marquee.name",
+  "class": "index-section--flush",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "t:sections.marquee.settings.text.label",
+      "default": "Free shipping and returns"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:sections.marquee.settings.link.label"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "t:sections.marquee.settings.text_size.label",
+      "default": 70,
+      "min": 20,
+      "max": 150,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_spacing",
+      "label": "t:sections.marquee.settings.text_spacing.label",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "t:sections.marquee.settings.direction.label",
+      "default": "left",
+      "options": [
+        {
+          "label": "t:sections.marquee.settings.direction.options.left.label",
+          "value": "left"
+        },
+        {
+          "label": "t:sections.marquee.settings.direction.options.right.label",
+          "value": "right"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "t:sections.marquee.settings.speed.label",
+      "default": 200,
+      "min": 50,
+      "max": 300,
+      "step": 10,
+      "unit": "s"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.marquee.presets.scrolling_text.name"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["custom.popups"]
+  }
+}
+{% endschema %}

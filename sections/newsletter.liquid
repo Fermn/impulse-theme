@@ -1,0 +1,253 @@
+{%- style -%}
+  .newsletter-{{ section.id }} {
+    background-color: {{ section.settings.color_background }};
+    color: {{ section.settings.color_text }};
+  }
+
+  .newsletter-{{ section.id }} .newsletter__input::-webkit-input-placeholder { color: {{ section.settings.color_text }}; }
+  .newsletter-{{ section.id }} .newsletter__input::-moz-placeholder { color: {{ section.settings.color_text }}; }
+  .newsletter-{{ section.id }} .newsletter__input::-ms-input-placeholder { color: {{ section.settings.color_text }}; }
+{%- endstyle -%}
+
+{% render 'newsletter-section', section: section %}
+
+{% schema %}
+  {
+    "name": "t:sections.newsletter.name",
+    "max_blocks": 6,
+    "blocks": [
+      {
+        "type": "@app"
+      },
+      {
+        "type": "title",
+        "name": "t:sections.newsletter.blocks.title.name",
+        "settings": [
+          {
+            "type": "text",
+            "id": "title",
+            "label": "t:sections.newsletter.blocks.title.settings.title.label",
+            "default": "Sign up and save"
+          },
+          {
+            "type": "select",
+            "id": "heading_size",
+            "label": "t:common.heading_size.label",
+            "default": "h2",
+            "options": [
+              {
+                "value": "h3",
+                "label": "t:common.heading_size.options.small.label"
+              },
+              {
+                "value": "h2",
+                "label": "t:common.heading_size.options.medium.label"
+              },
+              {
+                "value": "h1",
+                "label": "t:common.heading_size.options.large.label"
+              },
+              {
+                "value": "h0",
+                "label": "t:common.heading_size.options.extra_large.label"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "name": "t:sections.newsletter.blocks.text.name",
+        "settings": [
+          {
+            "type": "richtext",
+            "id": "text",
+            "label": "t:sections.newsletter.blocks.text.settings.text.label",
+            "default": "<p>Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</p>"
+          }
+        ]
+      },
+      {
+        "type": "form",
+        "name": "t:sections.newsletter.blocks.form.name",
+        "limit": 1
+      },
+      {
+        "type": "share_buttons",
+        "name": "t:sections.newsletter.blocks.share_buttons.name",
+        "limit": 1
+      }
+    ],
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "t:sections.newsletter.settings.content"
+      },
+      {
+        "type": "select",
+        "id": "align_text",
+        "label": "t:sections.newsletter.settings.align_text.label",
+        "default": "center",
+        "options": [
+          {
+            "value": "left",
+            "label": "t:sections.newsletter.settings.align_text.options.left.label"
+          },
+          {
+            "value": "center",
+            "label": "t:sections.newsletter.settings.align_text.options.center.label"
+          },
+          {
+            "value": "right",
+            "label": "t:sections.newsletter.settings.align_text.options.right.label"
+          }
+        ]
+      },
+      {
+        "type": "header",
+        "content": "t:sections.newsletter.settings.image.label"
+      },
+      {
+        "type": "image_picker",
+        "id": "image",
+        "label": "t:sections.newsletter.settings.image.label",
+        "info": "t:sections.newsletter.settings.image.info"
+      },
+      {
+        "type": "select",
+        "id": "image_width",
+        "label": "t:common.image_size.label",
+        "default": "33",
+        "options": [
+          {
+            "value": "33",
+            "label": "t:common.image_size.options.small.label"
+          },
+          {
+            "value": "50",
+            "label": "t:common.image_size.options.medium.label"
+          },
+          {
+            "value": "66",
+            "label": "t:common.image_size.options.large.label"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "image_mask",
+        "label": "t:common.image_mask.label",
+        "default": "none",
+        "options": [
+          {
+            "value": "none",
+            "label": "t:common.image_mask.options.none.label"
+          },
+          {
+            "value": "portrait",
+            "label": "t:common.image_mask.options.portrait.label"
+          },
+          {
+            "value": "landscape",
+            "label": "t:common.image_mask.options.landscape.label"
+          },
+          {
+            "value": "square",
+            "label": "t:common.image_mask.options.square.label"
+          },
+          {
+            "value": "rounded",
+            "label": "t:common.image_mask.options.rounded.label"
+          },
+          {
+            "value": "rounded-wave",
+            "label": "t:common.image_mask.options.rounded-wave.label"
+          },
+          {
+            "value": "rounded-top",
+            "label": "t:common.image_mask.options.rounded-top.label"
+          },
+          {
+            "value": "star",
+            "label": "t:common.image_mask.options.star.label"
+          },
+          {
+            "value": "splat-1",
+            "label": "t:common.image_mask.options.splat-1.label"
+          },
+          {
+            "value": "splat-2",
+            "label": "t:common.image_mask.options.splat-2.label"
+          },
+          {
+            "value": "splat-3",
+            "label": "t:common.image_mask.options.splat-3.label"
+          },
+          {
+            "value": "splat-4",
+            "label": "t:common.image_mask.options.splat-4.label"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "image_position",
+        "label": "t:sections.newsletter.settings.image_position.label",
+        "default": "right",
+        "options": [
+          {
+            "value": "left",
+            "label": "t:sections.newsletter.settings.image_position.options.left.label"
+          },
+          {
+            "value": "right",
+            "label": "t:sections.newsletter.settings.image_position.options.right.label"
+          }
+        ]
+      },
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "t:sections.newsletter.settings.color_background.label",
+        "default": "#f9f9f9"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "t:sections.newsletter.settings.color_text.label",
+        "default": "#1c1d1d"
+      },
+      {
+        "type": "checkbox",
+        "id": "top_padding",
+        "label": "t:sections.newsletter.settings.top_padding.label",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "bottom_padding",
+        "label": "t:sections.newsletter.settings.bottom_padding.label",
+        "default": true
+      }
+    ],
+    "presets": [
+      {
+        "name": "t:sections.newsletter.presets.email_signup.name",
+        "blocks": [
+          {
+            "type": "title"
+          },
+          {
+            "type": "text"
+          },
+          {
+            "type": "form"
+          }
+        ]
+      }
+    ],
+    "disabled_on": {
+      "groups": ["custom.popups"]
+    }
+  }
+{% endschema %}
