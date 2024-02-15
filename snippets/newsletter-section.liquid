@@ -1,0 +1,65 @@
+{%- if section.settings.divider -%}<div class="section--divider">{%- endif -%}
+
+{% style %}
+  {% if section.settings.top_padding == false %}
+    .newsletter-{{ section.id }} .newsletter-section { padding-top: 0 !important; }
+  {% endif %}
+  {% if section.settings.bottom_padding == false %}
+    .newsletter-{{ section.id }} .newsletter-section { padding-bottom: 0 !important; }
+  {% endif %}
+{% endstyle %}
+
+<div class="index-section newsletter-container newsletter-{{ section.id }} color-scheme-{{ section.settings.color_scheme }}">
+  {%- if section.settings.color_scheme and section.settings.color_scheme != 'none' -%}
+    {%- render 'color-scheme-texture', color_scheme: section.settings.color_scheme -%}
+  {%- endif -%}
+
+  <div class="page-width text-{{ section.settings.align_text }}">
+    <div class="newsletter-section newsletter-section--image-{{ section.settings.image_position }} {% unless section.settings.image != blank %}newsletter-section--no-image{% endunless %}">
+      <div class="newsletter-section__content">
+        {%- for block in section.blocks -%}
+          <div class="theme-block" {{ block.shopify_attributes }}>
+            {%- case block.type -%}
+              {%- when '@app' -%}
+                {% render block %}
+              {%- when 'title' -%}
+                {%- if block.settings.title != blank -%}
+                  <p class="{% if block.settings.heading_size != blank %}{{ block.settings.heading_size }}{% else %}h2{% endif %}">{{ block.settings.title | escape }}</p>
+                {%- endif -%}
+              {%- when 'text' -%}
+                {%- if block.settings.text != blank -%}
+                  <div class="rte">
+                    <div class="enlarge-text">
+                      {{ block.settings.text }}
+                    </div>
+                  </div>
+                {%- endif -%}
+              {%- when 'form' -%}
+                {%- render 'newsletter-form', section_id: section.id, snippet_context: 'section' -%}
+              {%- when 'share_buttons' -%}
+                {%- render 'social-sharing' -%}
+            {%- endcase -%}
+          </div>
+        {%- endfor -%}
+      </div>
+      {% if section.settings.image != blank %}
+        <div class="newsletter-section__image newsletter-section__image--{{ section.settings.image_width }}">
+          <div
+            class="image-wrap {% if section.settings.image_mask != 'none' %}svg-mask svg-mask--{{ section.settings.image_mask }}{% endif %}"
+            style="height: 0; padding-bottom: {{ 100 | divided_by: section.settings.image.aspect_ratio }}%;"
+          >
+            {%- render 'image-element',
+              img: section.settings.image,
+              sizeVariable: section.settings.image_width,
+              widths: '360, 540, 720, 1020',
+            -%}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+
+

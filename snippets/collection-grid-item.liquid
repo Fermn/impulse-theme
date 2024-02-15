@@ -1,0 +1,65 @@
+{%- liquid
+
+  unless background_position
+    assign background_position = 'center center'
+  endunless
+
+  if settings.collection_grid_image == 'collection' and collection.image
+    assign collection_image = collection.image
+  else
+    assign collection_image = collection.products.first.featured_media.preview_image
+  endif
+
+  if block.settings.title != blank
+    assign title_output = block.settings.title
+  else
+    if collection == blank
+      assign title_output = 'home_page.onboarding.collection_title' | t
+    elsif collection_title
+      assign title_output = collection_title
+    else
+      assign title_output = collection.title | escape
+    endif
+  endif
+-%}
+
+<div class="grid__item {{ gridView }}" {{ block.shopify_attributes }}>
+  <a href="{{ collection.url }}" class="collection-item collection-item--{{ settings.collection_grid_style }}" data-aos="row-of-{{ per_row }}">
+
+    {%- if collection == blank or collection_image == blank -%}
+      {%- capture placeholder -%}collection-{% cycle 1, 2, 3, 4, 5, 6 %}{%- endcapture -%}
+      <div class="collection-image collection-image--{{ settings.collection_grid_shape }} collection-image--placeholder">{{ placeholder | placeholder_svg_tag: 'placeholder-svg' }}</div>
+    {%- else -%}
+      <div class="collection-image collection-image--{{ settings.collection_grid_shape }} image-wrap">
+        {% assign indicator = block.id %}
+        {% if block == blank %}
+          {% assign indicator = collection.id %}
+        {% endif %}
+
+        {% style %}
+          .collection-image--{{ indicator }} {
+            object-position: {{ background_position }};
+          }
+        {% endstyle %}
+
+        {% assign classes = 'collection-image--' | append: indicator %}
+        {%- render 'image-element',
+          img: collection_image,
+          widths: '360, 540, 720, 900, 1080',
+          classes: classes,
+          sizes: sizes,
+          sizeVariable: sizeVariable,
+          fallback: fallback,
+        -%}
+      </div>
+    {%- endif -%}
+
+    <span
+      class="collection-item__title collection-item__title--{{ settings.collection_grid_style }} collection-item__title--{{ settings.type_collection_font }} collection-item__title--{{ settings.collection_grid_text_align }}">
+      <span>
+        {{ title_output }}
+      </span>
+    </span>
+
+  </a>
+</div>

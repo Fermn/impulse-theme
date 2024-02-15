@@ -1,0 +1,207 @@
+{% comment %}
+  Image element snippet
+  - Builds out our theme images
+    - Parameters:
+     - img (Required - Image object)
+     - classes (Optional - String)
+     - alt (Optional - String)
+     - loading (Optional - String)
+     - img_height (Optional - String)
+     - img_width (Optional - String)
+     - sizes (Optional - String)
+     - widths (Optional - String)
+     - preload (Optional - Boolean)
+     - itemprop (Optional - String)
+     - format (Optional - String)
+     - role (Optional - String)
+     - aria-hidden (Optional - Boolean)
+     - style (Optional - String)
+  - Builds out image tags for hosted files
+    - Parameters:
+      - asset (Required - String url)
+      - host (Optional - String), default is Shopify
+      - type (Required - String)
+      - classes (Optional - String)
+      - alt (Optional - String)
+      - widths (Optional - String)
+      - data-name (Optional - String)
+      - data-value (Optional - String)
+      - width (Optional - Number)
+      - height (Optional - Number)
+  - Builds out images that connect into Photoswipe
+    - Parameters:
+      - img (Required - Media preview image)
+      - type (Required - String)
+      - product_zoom_size (Required - String)
+      - loopIndex (Required - String)
+      - media_height (Required - String)
+      - media_width (Required - String)
+      - media (Required - Media object)
+      - classes (Optional - String)
+      - alt (Optional - String)
+      - widths (Optional - String)
+
+  https://shopify.dev/api/liquid/filters#image_tag
+  https://shopify.dev/api/liquid/filters#image_url
+{% endcomment %}
+
+{% liquid
+  assign classes = classes | escape
+  assign alt = alt | escape
+
+  # Image Loading https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/loading#value
+    # Lazyloading or eager
+    # Eager is the default loading behavior of the browser, which is the same as not including the attribute and means the image is loaded as soon as possible
+    # We are setting it explicitly here but there are no performance benefits
+
+  if loading == 'eager'
+    assign loading = 'eager'
+  elsif loading == false
+    assign loading = 'eager'
+    assign preload = true
+  else
+    assign loading = 'lazy'
+    assign preload = false
+  endif
+
+  # Image sizes https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/sizes
+   # Can explicitly pass in sizes. For example: sizes: '200px' or '(min-width: 769px) 400px, 30vw'
+   # Can pass in only a sizeVariable
+    # This can represent a setting like products per row which means each grid item has a width that can vary
+    # Can pass in an explicit value
+   # Can also pass in an optional fallback size which is only used when the first condition passed to sizes is not true.
+   # If sizes and sizeVariable is blank we output a default value for sizes which is 100vw
+  if sizes == blank and sizeVariable != blank
+    capture sizes
+      render 'sizes-explicit', sizeVariable: sizeVariable, fallback: fallback
+    endcapture
+  endif
+
+  if sizes == blank
+    assign sizes = '100vw'
+  else
+    assign sizes = sizes
+  endif
+
+  if alt == blank
+    assign alt = img.alt | default: ''
+  endif
+
+  if animation == blank
+    assign animation = 'image-fade-in'
+  else
+    assign animation = animation
+  endif
+
+  # Add a class to the image so we can target theme images
+  assign classes = classes | append: ' image-element'
+%}
+
+<image-element data-aos="{{ animation }}" data-aos-offset="150">
+
+{% if type == blank %}
+  {% if widths != blank %}
+    {% if img_width == blank %}
+      {% assign img_width = widths | split: ',' | last %}
+    {% endif %}
+    {{ img
+      | image_url: width: img_width, format: format
+      | image_tag: preload: preload,
+                  height: img_height,
+                  width: img_tag_width,
+                  class: classes,
+                  loading: loading,
+                  alt: alt,
+                  sizes: sizes,
+                  widths: widths,
+                  itemprop: itemprop,
+                  role: role,
+                  aria-hidden: ariaHidden,
+                  style: style
+    }}
+  {% else %}
+    {% if img_width == blank %}
+      {% assign img_width = img.width | times: 2 | round %}
+    {% endif %}
+    {{ img
+      | image_url: width: img_width, format: format
+      | image_tag: preload: preload,
+                  height: img_height,
+                  width: img_tag_width,
+                  class: classes,
+                  loading: loading,
+                  alt: alt,
+                  sizes: sizes,
+                  itemprop: itemprop,
+                  role: role,
+                  aria-hidden: ariaHidden,
+                  style: style
+    }}
+  {% endif %}
+{% elsif type == 'photoswipe' %}
+  {% assign widthsArray = widths | split: ',' %}
+  {%- capture img_widths -%}
+    {% for width in widthsArray %}
+      {{ media | image_url: width: width }} {{ width | append: 'w' }},
+    {% endfor %}
+  {%- endcapture -%}
+  {% assign img_width = widthsArray | last %}
+  <img src="{{ img | image_url: width: img_width }}"
+    width
+    height
+    class="{{ classes }}"
+    loading="{{ loading }}"
+    alt="{{ alt }}"
+    srcset="{{ img_widths }}"
+    data-photoswipe-src="{{ img | image_url: width: product_zoom_size, format: format }}"
+    data-photoswipe-width="{{ media_width }}"
+    data-photoswipe-height="{{ media_height }}"
+    data-index="{{ loopIndex }}"
+    sizes="{{ sizes }}"
+  >
+{% else %}
+  {% if host == 'theme' %}
+    {% assign img_src = asset | asset_url %}
+  {% else %}
+    {% assign img_src = asset | shopify_asset_url %}
+  {% endif %}
+  {%- capture img_widths -%}
+    {% if host == 'theme' %}
+      {{ asset | asset_img_url: '360x' }} 360w,
+      {{ asset | asset_img_url: '540x' }} 540w,
+      {{ asset | asset_img_url: '720x' }} 720w,
+      {{ asset | asset_img_url: '900x' }} 900w,
+      {{ asset | asset_img_url: '1080x' }} 1080w
+    {% endif %}
+  {%- endcapture -%}
+  <img src="{{ img_src }}"
+       width="{{ img_width }}"
+       height="{{ img_height }}"
+       class="{{ classes }}"
+       loading="{{ loading }}"
+       alt="{{ alt }}"
+       {% if img_widths != blank %}srcset="{{ img_widths }}"{% endif %}
+       {% if data-name and data-value %}data-{{ data-name }}="{{ data-value }}"{% endif %}
+       sizes="{{ sizes }}"
+  >
+{% endif %}
+
+</image-element>
+
+{% comment %}
+
+ - snippet is used for all images across the theme, for hosted assets, and photoswipe
+
+ - collection-grid-item snippet, in some themes the collection list allows for an image upload so we don't need the focal point section setting. But in other themes the collection image or first product image is used and so our existing focal point setting still makes sense to keep because it is value added.
+
+ - using the loading="lazy" attribute, can potentially have a negative performance impact if it is used on images that are already within the browser viewport on load. Therefore it’s advised that you only use it on images lower down on the page.
+
+- using preload: for key images, it may also be useful to prioritise the loading of those images to reduce “layout shift” and display key content to the visitor faster. It’s ideal for the first image on a product page, or a large banner image on the homepage, for example.
+
+  could add section settings for merchants to enable lazyloading/preload for a section if below the fold, by default we disable it for these sections ie. slideshow
+  static sections like collection hero would not be lazyloaded but collection grid would be lazyloaded
+  add info text to that setting to let merchant know it should only be used for section if below the fold otherwise might impact performance
+
+TODO: when we convert image element to a custom HTML element we can add back certain loading styles
+
+{% endcomment %}

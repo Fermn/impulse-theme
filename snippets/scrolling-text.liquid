@@ -1,0 +1,30 @@
+{% style %}
+  .scrolling-text--{{ section.id }} {
+    --move-speed: {{ section.settings.speed }}s;
+  }
+
+  .scrolling-text--{{ section.id }} span {
+    font-size: {{ section.settings.text_size }}px;
+  }
+
+  {% if section.settings.color_scheme == 'button' %}
+    .scrolling-text--{{ section.id }} {
+      background: {{ settings.color_button }};
+      color: {{ settings.color_button_text }};
+    }
+  {% endif %}
+{% endstyle %}
+
+{% if section.settings.link != blank %}
+  <a href="{{ section.settings.link }}">
+{% endif %}
+<div class="scrolling-text scrolling-text--{{ section.id }}">
+  <div class="scrolling-text__inner scrolling-text__inner--{{ section.settings.direction }}" aria-hidden="true" tabindex="0" style="gap: {% if section.settings.text_spacing %}40px{% else %}10px{% endif %};">
+    {% for i in (1..35) %}
+      <span>{{ section.settings.text }}</span>
+    {% endfor %}
+  </div>
+</div>
+{% if section.settings.link != blank %}
+  </a>
+{% endif %}

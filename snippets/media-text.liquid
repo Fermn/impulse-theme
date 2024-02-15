@@ -1,0 +1,184 @@
+{%- style -%}
+  {%- if section.settings.top_padding == false -%}
+    #shopify-section-{{ section.id }} .index-section { padding-top: 0 !important; }
+  {%- endif -%}
+  {%- if section.settings.bottom_padding == false -%}
+    #shopify-section-{{ section.id }} .index-section { padding-bottom: 0 !important; }
+  {%- endif -%}
+{%- endstyle -%}
+
+<div class="{% unless section.settings.full_width %}index-section{% endunless %} color-scheme-{{ section.settings.color_scheme }}">
+  {%- if section.settings.color_scheme != 'none' -%}
+    {%- render 'color-scheme-texture', color_scheme: section.settings.color_scheme -%}
+  {%- endif -%}
+  <section
+    class="
+      media-with-text media-with-text-media-width--{{ section.settings.media_width }}
+      media-with-text-layout--{{ section.settings.layout }}
+      media-with-text-full-width--{{ section.settings.full_width }}
+      media-with-text-content-align--{{ section.settings.content_alignment }}
+      {% unless section.settings.full_width %}page-width{% endunless %}
+      {% if section.settings.media_crop == '16-9' or
+        section.settings.media_crop == '4-3' or
+        section.settings.media_crop == 'portrait' or
+        section.settings.media_crop == 'landscape' or
+        section.settings.media_crop == 'square'
+      %}
+        media-with-text-media-crop--regular
+      {% elsif section.settings.media_crop == 'none' %}
+        media-with-text-media-crop--none
+      {% else %}
+        media-with-text-media-crop--custom-shape
+      {% endif %}
+    "
+  >
+    <div
+      class="
+        media-with-text__content
+        media-with-text-content-position--{{ section.settings.content_position }}
+      "
+    >
+      {%- if section.settings.subheading != blank -%}
+        <p class="accent-subtitle">{{ section.settings.subheading }}</p>
+      {%- endif -%}
+      {%- if section.settings.heading != blank -%}
+        <h2
+          class="
+            {{ section.settings.heading_size }}
+            text-highlight
+            text-highlight--{{ section.settings.text_highlight }}
+          "
+        >{{ section.settings.heading }}</h2>
+      {%- endif -%}
+      {%- if section.settings.text != blank -%}
+        <div
+          class="rte media-with-text__richtext"
+        >{{ section.settings.text }}</div>
+      {%- endif -%}
+      {%- if section.settings.button_text != blank -%}
+        <div class="media-with-text__content-button">
+          <a href="{{ section.settings.button_link }}" class="btn">
+            {{ section.settings.button_text }}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+    <div class="media-with-text__media">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'video' -%}
+          <div
+            class="
+              media-with-text__video
+              {% if block.settings.video == blank %}media-with-text__video--no-video{% endif %}
+              {% if block.settings.video != blank %}
+                media-with-text-video-crop--{{ section.settings.media_crop }}
+              {% endif %}
+            "
+            {{ block.shopify_attributes }}
+          >
+          {%- if block.settings.video != blank -%}
+            {%- if block.settings.alt_image != blank -%}
+              {%- capture image_classes -%}media-with-text__alt-image{%- endcapture -%}
+              <div
+                class="media-with-text__alt-image-wrapper
+                  {% if section.settings.media_crop != 'none' and
+                    section.settings.media_crop != '16-9' and
+                    section.settings.media_crop != '4-3'
+                  %}
+                    svg-mask svg-mask--{{ section.settings.media_crop }}
+                  {% endif %}
+                "
+              >
+                {%- render 'image-element',
+                  img: block.settings.alt_image,
+                  classes: image_classes,
+                -%}
+              </div>
+            {%- endif -%}
+            <div class="media-with-text__video-wrapper media-with-text__video-wrapper--hidden
+              {% if section.settings.media_crop != 'none' and
+                section.settings.media_crop != '16-9' and
+                section.settings.media_crop != '4-3'
+              %}
+                svg-mask svg-mask--{{ section.settings.media_crop }}
+              {% endif %}
+            ">
+              <media-text>
+                {{ block.settings.video
+                  | video_tag:
+                    image_size: "1100x",
+                    autoplay: block.settings.autoplay,
+                    loop: block.settings.loop,
+                    controls: false,
+                    muted: block.settings.mute_video
+                }}
+                <button type="button"
+                  class="
+                    media-with-text__play-button
+                    {% if block.settings.hide_controls %}media-with-text__play-button--hidden{% endif %}
+                  "
+                >
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                    width="24.52px" height="28.3px" viewBox="18.24 17.35 24.52 28.3" enable-background="new 18.24 17.35 24.52 28.3"
+                    xml:space="preserve"
+                    class="icon icon--play"
+                  >
+                  <path fill="#323232" d="M22.1,19.151v25.5l20.4-13.489L22.1,19.151z"/>
+                  </svg>
+                  <span class="icon__fallback-text">Play</span>
+                </button>
+              </media-text>
+            </div>
+          {%- else -%}
+            <div class="media-with-text__placeholder-image">
+              {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+            </div>
+          {%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- if block.type == 'image' -%}
+          <div
+            class="
+              media-with-text__image
+              {% if block.settings.image == blank %}media-with-text__image--no-image{% endif %}
+            "
+            {{ block.shopify_attributes }}
+          >
+          {%- if block.settings.image != blank -%}
+            <div
+              class="{% if section.settings.media_crop != 'none' %}svg-mask svg-mask--{{ section.settings.media_crop }}{% endif %}
+              "
+              {%- if section.settings.media_crop != 'none' -%}
+                style="--svg-mask-ratio: {{ 100 | divided_by: block.settings.image.aspect_ratio }}%;"
+              {%- endif -%}
+            >
+              {%- liquid
+                assign sizes = section.settings.media_width | append: 'vw'
+
+                assign imageWidth = section.settings.media_width | times: 1
+                if imageWidth >= 50
+                  assign loading = section.settings.lazyload_images
+                else
+                  assign loading = true
+                endif
+              -%}
+              {%- render 'image-element'
+                img: block.settings.image,
+                sizes: sizes,
+                loading: loading,
+              -%}
+            </div>
+          {%- else -%}
+            <div class="image-placeholder">
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+            </div>
+          {%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- if block.type == 'app' -%}
+          {%- render block -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+</div>

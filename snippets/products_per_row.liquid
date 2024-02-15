@@ -1,0 +1,61 @@
+{%- liquid
+  # Purpose of this snippet is to get the right classes for the product and collection grids
+
+  # Products per row
+   # Should try to pass in an integer but we have a filter to convert it to an integer if need be
+   # Takes in number of products per row
+   # Outputs class for grid layout
+   # Section using snippet doesn't necessarily need a products per row setting
+
+   # Featured collection, products per row comes from a section setting
+   # Collections list, products per row can come from collection size / blocks size
+
+  #Style
+    ## Small medium large product grid style (default)
+    ## Fraction style grid classes
+
+  assign products_per_row = products_per_row | times: 1
+
+  if style != blank
+    assign style = style
+  else
+    assign style = 'product-grid'
+  endif
+
+  # Product Grid Classes
+  if style == 'product-grid'
+    case products_per_row
+      when 1
+        assign gridView = ''
+      when 2
+        assign gridView = 'large'
+      when 3
+        assign gridView = 'medium'
+      when 4
+        assign gridView = 'small'
+      else
+        assign gridView = 'xsmall'
+    endcase
+  endif
+
+  #Collection Grid Classes
+
+  if style == 'fractions'
+    case products_per_row
+      when 1
+        assign gridView = ''
+      when 2
+        assign gridView = 'medium-up--one-half'
+      when 3
+        assign gridView = 'small--one-half medium-up--one-third'
+      when 4
+        assign gridView = 'small--one-half medium-up--one-quarter'
+      when 5
+        assign gridView = 'small--one-half medium-up--one-fifth'
+      else
+        assign gridView = 'small--one-third medium-up--one-sixth'
+    endcase
+  endif
+
+  echo gridView
+-%}

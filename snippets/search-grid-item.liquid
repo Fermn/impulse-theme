@@ -1,0 +1,57 @@
+{% comment %}
+Arguments
+- product: product object
+- [per_row]: number of items per row
+{% endcomment %}
+
+{%- liquid
+  unless per_row
+    assign per_row = 4
+  endunless
+
+  assign fallback = blank
+  case per_row
+    when 1
+      assign grid_item_width = ''
+    when 2
+      assign grid_item_width = 'medium-up--one-half'
+      assign sizeVariable = 'medium-up--one-half'
+    when 3
+      assign grid_item_width = 'small--one-half medium-up--one-third'
+      assign sizeVariable = 'medium-up--one-third'
+      assign fallback = 'small--one-half'
+    when 4
+      assign grid_item_width = 'small--one-half medium-up--one-quarter'
+      assign sizeVariable = 'medium-up--one-quarter'
+      assign fallback = 'small--one-half'
+    when 5
+      assign grid_item_width = 'small--one-half medium-up--one-fifth'
+      assign sizeVariable = 'medium-up--one-fifth'
+      assign fallback = 'small--one-half'
+    when 6
+      assign grid_item_width = 'small--one-half medium-up--one-sixth'
+      assign sizeVariable = 'medium-up--one-sixth'
+      assign fallback = 'small--one-half'
+  endcase
+-%}
+
+<div class="grid__item grid-search {{ grid_item_width }}" data-aos="row-of-{{ per_row }}">
+  <div class="grid-search__page">
+    <a href="{{ item.url }}" class="grid-search__page-link">
+      <span class="grid-search__page-content">
+      <span class="h4">{{ item.title }}</span>
+        {%- if item.object_type == 'article' and item.image -%}
+          {%- render 'image-element',
+            img: item.image,
+            classes: 'grid-product__image',
+            alt: item.title,
+            widths: '180, 360, 540',
+            sizeVariable: sizeVariable,
+            fallback: fallback,
+          -%}
+        {%- endif -%}
+        {{ item.content | strip_html | truncatewords: 45 }}
+      </span>
+    </a>
+  </div>
+</div>

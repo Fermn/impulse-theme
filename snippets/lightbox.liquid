@@ -1,0 +1,21 @@
+{%- liquid
+  # Lightbox snippet
+  # Usage: element needs to have the .lightbox-trigger class and be wrapped in an <image-lightbox></image-lightbox> tag
+  # context: 'context' is the class name of the lightbox container
+  # classes: string of classes to add to the lightbox image container
+  # img: image to display in the lightbox
+  # Example: render 'lightbox', context: 'gallery'
+-%}
+
+<div class="lightbox lightbox--{{ context }}">
+  <div class="lightbox-outer-container">
+    <div class="lightbox-content {{ classes }}">
+      {%- render 'image-element'
+        img: img,
+      -%}
+      <button class="lightbox-close-btn">
+        <svg aria-hidden="true" focusable="false" role="presentation" class="icon icon-close" viewBox="0 0 64 64"><title>icon-X</title><path d="m19 17.61 27.12 27.13m0-27.12L19 44.74"/></svg>
+      </button>
+    </div>
+  </div>
+</div>

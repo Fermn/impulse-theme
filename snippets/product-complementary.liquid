@@ -1,0 +1,74 @@
+{%- liquid
+  assign recommend_products = true
+
+  if recommendations.products and recommendations.products_count > 0
+    assign related_collection = recommendations
+  endif
+
+  if type == 'block'
+    assign number_of_products = block.settings.complementary_count
+    assign image_style = block.settings.image_style
+  else
+    assign number_of_products = section.settings.complementary_count
+  endif
+-%}
+
+<product-recommendations
+  id="Recommendations-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="product-recommendations"
+  data-enable="{{ recommend_products }}"
+  data-product-id="{{ product.id }}"
+  data-intent="complementary"
+  {% if type == 'block' %}data-block-id="{{ block.id}}" {{ block.shopify_attributes }}{% endif %}
+  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ number_of_products }}&intent=complementary"
+  data-limit="{{ number_of_products }}">
+
+  {% if block.settings.product_complementary_heading != blank %}
+    <h4 class="product-recommendations__title">{{ block.settings.product_complementary_heading }}</h4>
+  {% endif %}
+
+  <div
+    class="{% unless block.settings.product_complementary_heading != blank %}product-recommendations--title-missing{% endunless %}"
+    data-section-id="{{ product.id }}"
+    data-subsection
+    data-section-type="collection-template">
+    {%- if recommend_products -%}
+      <div class="product-recommendations-placeholder">
+        {% comment %}
+          This content is visually hidden and replaced when recommended products show up
+        {% endcomment %}
+        <div class="grid grid--uniform visually-invisible" aria-hidden="true">
+          {%- render 'product-grid-item', product: product, per_row: number_of_products -%}
+        </div>
+      </div>
+    {%- endif -%}
+    {%- if related_collection.products_count > 0 -%}
+      <div class="product-recommendations">
+        <div class="product-single__related grid grid--uniform" data-aos="overflow__animation" {% if type == 'block' %}data-slideshow data-controls="{{ block.settings.control_type }}" data-per-slide="{{ block.settings.per_slide }}" data-count="{{ number_of_products}}"{% endif %}>
+          {% assign currentStep = 1 %}
+          {%- for product in related_collection.products limit: number_of_products -%}
+            {% if currentStep == 1 %}
+              <div class="product-recommendations__slide">
+            {% endif %}
+
+            {%- render 'product-grid-item',
+              image_style: image_style,
+              product: product,
+              per_row: 1,
+              type: 'horizontal',
+              sizes: '112px',
+            -%}
+
+            {% if currentStep == block.settings.per_slide or forloop.last %}
+              </div>
+              {% assign currentStep = 0 %}
+            {% endif %}
+
+            {% assign currentStep = currentStep | plus: 1 %}
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</product-recommendations>

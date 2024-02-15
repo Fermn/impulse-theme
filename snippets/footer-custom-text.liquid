@@ -1,0 +1,31 @@
+<div class="footer__item-padding">
+  {%- if block.settings.show_footer_title -%}
+    <h2 class="h4 footer__title small--hide">{{ block.settings.title }}</h2>
+    <button type="button" class="h4 footer__title collapsible-trigger collapsible-trigger-btn medium-up--hide" aria-controls="Footer-{{ block.id }}">
+      {{ block.settings.title }}
+      {%- render 'collapsible-icons' -%}
+    </button>
+  {%- endif -%}
+  <div
+    {% if block.settings.show_footer_title %}
+      id="Footer-{{ block.id }}" class="collapsible-content collapsible-content--small"
+    {% endif %}>
+    <div class="collapsible-content__inner">
+      <div class="footer__collapsible{% unless block.settings.show_footer_title %} footer_collapsible--disabled{% endunless %}">
+        {%- if block.settings.image != blank -%}
+          <div class="image-wrap text-spacing" style="height: 0; padding-bottom: {{ 100 | divided_by: block.settings.image.aspect_ratio }}%;">
+            {%- assign sizeVariable = container_width | append: 'vw' -%}
+            {%- render 'image-element',
+              img: block.settings.image,
+              widths: '360, 540, 720, 900, 1080, 1600',
+              role: 'presentation',
+              sizeVariable: sizeVariable,
+            -%}
+          </div>
+        {%- endif -%}
+
+        {{ block.settings.text }}
+      </div>
+    </div>
+  </div>
+</div>

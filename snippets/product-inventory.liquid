@@ -1,0 +1,127 @@
+{% comment %}
+  Product Inventory Snippet
+  - This snippet is used to display the inventory of a product
+  - This includes two key items (1) the inventory quantity and (2) the inventory transfer notice
+
+  Parameters:
+  - product: The product object
+  - current_variant: The current variant object
+  - block: The block object
+
+  Usage:
+  {% include 'product-inventory' with product: product, current_variant: current_variant, block: block %}
+{% endcomment %}
+
+{%- liquid
+  assign show_low_inventory_message = false
+  if current_variant.inventory_management == 'shopify'
+    if current_variant.inventory_quantity <= block.settings.inventory_threshold and current_variant.inventory_quantity > 0
+      # If inventory is low, show the low inventory message
+      assign show_low_inventory_message = true
+    endif
+  endif
+
+  # Incoming inventory is only displayed if the following conditions are met:
+   ## Inventory transfer notice is enabled
+   ## If the product is not in stock
+   ## If the product does not have low inventory
+   ## If the product has incoming inventory
+   ## If product inventory is less than or equal to zero and inventory policy is continue
+  # In other words, if the product has low inventory or in stock, don't show the incoming inventory message
+
+  assign oos_and_continue_selling = false
+  if current_variant.inventory_quantity <= 0 and current_variant.inventory_policy == 'continue'
+    assign oos_and_continue_selling = true
+  endif
+
+  assign show_incoming_inventory_message = false
+
+  if block.settings.inventory_transfers_enable and current_variant.incoming and show_low_inventory_message == false and current_variant.available == false
+    assign show_incoming_inventory_message = true
+  endif
+
+  if block.settings.inventory_transfers_enable and oos_and_continue_selling
+    assign show_incoming_inventory_message = true
+  endif
+
+-%}
+
+<div class="product-block product-block--sales-point" {{ block.shopify_attributes }}>
+  <ul class="sales-points">
+    <li class="sales-point {% unless current_variant.inventory_quantity > 0 %}hide{% endunless %}">
+      <span class="icon-and-text{% if show_low_inventory_message == true %} inventory--low{% endif %}"
+      >
+        <span class="icon icon--inventory"></span>
+        <span data-product-inventory data-threshold="{{ block.settings.inventory_threshold }}" data-enabled="{{ block.settings.inventory_transfers_enable }}">
+          {%- if show_low_inventory_message -%}
+            {{ 'products.product.stock_label' | t: count: current_variant.inventory_quantity }}
+          {%- else -%}
+            {{ 'products.product.in_stock_label' | t }}
+          {%- endif -%}
+        </span>
+      </span>
+    </li>
+    <li
+      data-incoming-inventory
+      class="sales-point {% unless show_incoming_inventory_message %}hide{% endunless %}"
+      data-enabled="{{ block.settings.inventory_transfers_enable }}"
+    >
+      <span class="icon-and-text">
+        <span class="icon icon--inventory"></span>
+        <span class="js-incoming-text">
+          {%- if current_variant.next_incoming_date -%}
+            {%- assign date = current_variant.next_incoming_date | date: format: 'date' -%}
+            {%- if current_variant.available == false -%}
+              {{ 'products.product.will_be_in_stock_after' | t: date: date }}
+            {%- endif -%}
+          {%- else -%}
+            {{ 'products.product.waiting_for_stock' | t }}
+          {%- endif -%}
+        </span>
+      </span>
+    </li>
+  </ul>
+</div>
+
+{%- assign variants_with_inventory_tracking = product.variants | where: 'inventory_management', 'shopify' -%}
+
+<script>
+  // Store inventory quantities in JS because they're no longer
+  // available directly in JS when a variant changes.
+  // Have an object that holds all potential products so it works
+  // with quick view or with multiple featured products.
+  window.inventories = window.inventories || {};
+  window.inventories['{{ product.id }}'] = {};
+   {% for variant in variants_with_inventory_tracking %}
+    window.inventories['{{ product.id }}'][{{ variant.id }}] = {
+      'quantity': {{ variant.inventory_quantity | default: 0 }},
+      'policy': '{{ variant.inventory_policy | default: false }}',
+      'incoming': '{{ variant.incoming | default: false }}',
+      'next_incoming_date': {{ variant.next_incoming_date | date: format: 'date' | json }}
+    };
+   {% endfor %}
+</script>
+
+{% comment %}
+  If loaded in quick view, it might be from a JS-loaded function
+  that loads recommended products. If that's the case, the above
+  JS will not set the variant inventory. Add it to an accessible
+  data div to read later instead.
+{% endcomment %}
+<div
+  data-product-id="{{ product.id }}"
+  class="hide js-product-inventory-data"
+  aria-hidden="true"
+  >
+  {%- for variant in variants_with_inventory_tracking -%}
+    <div
+      class="js-variant-inventory-data"
+      data-id="{{ variant.id }}"
+      data-quantity="{{ variant.inventory_quantity | default: 0 }}"
+      data-policy="{{ variant.inventory_policy | default: false }}"
+      data-incoming="{{ variant.incoming | default: false }}"
+      data-date="{{ variant.next_incoming_date | date: format: 'date' }}"
+    >
+    </div>
+  {%- endfor -%}
+</div>

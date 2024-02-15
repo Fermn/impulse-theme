@@ -1,0 +1,81 @@
+{%- liquid
+  capture gridView
+    render 'products_per_row', products_per_row: section.settings.images_per_row
+  endcapture
+ -%}
+
+<section class="gallery gallery--full-width-{{ section.settings.full_width }}"
+  style="
+    --gallery-grid-spacing: {{ section.settings.gutter_size }}px;
+    {% if section.settings.space_above %}
+      --gallery-space-above: var(--indexSectionPadding);
+    {% endif %}
+    {% if section.settings.space_below %}
+      --gallery-space-below: var(--indexSectionPadding);
+    {% endif %}
+  "
+>
+  {% unless section.settings.heading == blank %}
+    <div class="section-header page-width gallery__text--{{ section.settings.text_alignment }}">
+      {% if section.settings.heading != blank %}
+        <h2 class="section-header__title {{ section.settings.heading_size }}">{{ section.settings.heading }}</h2>
+      {% endif %}
+    </div>
+  {% endunless %}
+  {% unless section.settings.full_width %}
+    <div class="page-width">
+  {% endunless %}
+    <div class="gallery__container" data-view="{{ gridView }}">
+      {% for block in section.blocks %}
+        {% if block.type == 'image' %}
+          <figure class="gallery__image gallery__image--aligned-{{ block.settings.image_align }}" {{ block.shopify_attributes }}>
+            {% if block.settings.image != blank %}
+              <image-lightbox>
+                <div class="gallery__image-inner
+                    {% if block.settings.image_crop != 'none' %}svg-mask svg-mask--{{ block.settings.image_crop }}{% endif %}
+                  "
+                  {% if block.settings.image_crop != 'none' %}
+                    style="--svg-mask-ratio: {{ 100 | divided_by: block.settings.image.aspect_ratio }}%;"
+                  {% endif %}
+                >
+                  {%- liquid
+                    # Check lazyload setting only if images per row is less than 3
+                    ## and if it's the first 2 images
+                    if section.settings.images_per_row < 3 and forloop.index < 3
+                      assign loading = section.settings.lazyload_images
+                    else
+                      assign loading = true
+                    endif
+                  -%}
+                  {%- render 'image-element'
+                    img: block.settings.image,
+                    sizeVariable: gridView,
+                    loading: loading,
+                    classes: 'lightbox-trigger'
+                  -%}
+                  </div>
+                  {%- liquid
+                    if block.settings.image_crop != 'none'
+                      assign classes = 'svg-mask svg-mask--' | append: block.settings.image_crop
+                    else
+                      assign classes = ''
+                    endif
+                  -%}
+                  {%- render 'lightbox', context: 'gallery', classes: classes, img: block.settings.image -%}
+              </image-lightbox>
+            {% else %}
+              <div class="gallery__placeholder-image {% if block.settings.image_crop != 'none' %}svg-mask svg-mask--{{ block.settings.image_crop }}{% endif %}">
+                {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+              </div>
+            {% endif %}
+          </figure>
+        {% endif %}
+        {% if block.type == 'app' %}
+          {% render block %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% unless section.settings.full_width %}
+    </div>
+  {% endunless %}
+</section>

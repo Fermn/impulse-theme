@@ -1,0 +1,9 @@
+{% comment %}
+  https://shopify.dev/docs/api/liquid/filters/login_button
+{% endcomment %}
+
+{%- if shop.features.follow_on_shop? -%}
+  <div class="footer__follow-on-shop">
+    {{ shop | login_button: action: 'follow' }}
+  </div>
+{%- endif -%}
